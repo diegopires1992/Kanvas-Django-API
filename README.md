@@ -9,7 +9,7 @@
 <br>
 
 ```sh
-git clone git@gitlab.com:programadorpires/kenzie-pet.git
+git clone git@gitlab.com:programadorpires/kanvas.git
 ```
 <h4>Navegue pelo terminal até a pasta do projeto para instalação do virtual venv e rode o comando abaixo :</h4>
 <br>
@@ -50,54 +50,213 @@ python manage.py runserver
 Requests e URLs:
 <br>
 <br>
-POST /animals/ - cadastrar animal
+<h4>POST /api/accounts/ - cria usuários</h4>
+<br>
+<h4></h4>
+<h4>POST /api/login/ -  faz autenticação</h4>
+<br>
+<h4>PUT /api/courses/registrations/  - matricula estudantes num determinado curso (user: instrutor apenas)</h4>
 <br>
 <br>
-GET /animals/ - listar animais
+<h4>GET /api/courses/ - lista cursos e alunos matriculados (sem autenticação)</h4>
+<br>
+<h4>POST /api/activities/ -  cria atividade do estudante (sem nota, user: estudante apenas)</h4>
+<br>
+<h4>PUT /api/activities/ - edita atividade - atribui nota - (user: facilitador e instrutor)</h4>
+<br>
+<h4>GET /api/activities/ -  lista atividades do estudante (user: estudante)</h4>
+<br>
+<h4>GET /api/activities/ - lista todas as atividades de todos os estudantes (user: facilitador e instrutor)</h4>
+<br>
+<h4>GET /api/activities/<int:user_id>/ - filtra as atividades por user_id (user: facilitador e instrutor)</h4>
 <br>
 <br>
-GET /animals/<int: animal_id> - filtrar animal
+Criando um estudante:
 <br>
 <br>
-DELETE /animals/<int: animal_id> - deletar animal
-<br>
-<br>
-<br>
-<br>
-Cadastrando de animal:
-<br>
-<br>
-POST /animals/
+POST /api/accounts/
 <br>
 <br>
 
 ```sh
 // REQUEST
 {
-  "name": "Bidu",
-	"age": 1,
-	"weight": 30,
-	"sex": "macho",
-  "group": {
-	"name": "cao",
-	"scientific_name": "canis familiaris"
-	},
-  "characteristic_set": [
+  "username": "student",
+  "password": "1234",
+  "is_superuser": false,
+  "is_staff": false
+}
+```
+```sh
+// RESPONSE STATUS -> HTTP 201
+{
+  "id": 1,
+  "username": "student",
+  "is_superuser": false,
+  "is_staff": false
+}
+```
+<br>
+<br>
+Criando um facilitador:
+<br>
+<br>
+POST /api/accounts/
+<br>
+<br>
+
+```sh
+// REQUEST
+{
+  "username": "facilitator",
+  "password": "1234",
+  "is_superuser": false,
+  "is_staff": true
+}
+```
+```sh
+// RESPONSE STATUS -> HTTP 201
+{
+  "id": 2,
+  "username": "facilitator",
+  "is_superuser": false,
+  "is_staff": true
+}
+```
+<br>
+<br>
+Criando um instrutor:
+<br>
+<br>
+POST /api/accounts/
+<br>
+<br>
+
+```sh
+// REQUEST
+{
+  "username": "instructor",
+  "password": "1234",
+  "is_superuser": true,
+  "is_staff": true
+}
+```
+```sh
+// RESPONSE STATUS -> HTTP 201
+{
+  "id": 3,
+  "username": "instructor",
+  "is_superuser": true,
+  "is_staff": true
+}
+```
+<br>
+Caso haja a tentativa de criação de um usuário que já está cadastrado o sistema deverá responder com HTTP 409 - Conflict.
+<br>
+<br>
+Sobre Autenticação:
+<br>
+A API funcionará com autenticação baseada em token:
+<br>
+<br>
+POST /api/login/
+<br>
+<br>
+
+```sh
+// REQUEST
+{
+  "username": "student",
+  "password": "1234"
+}
+```
+```sh
+// RESPONSE STATUS -> HTTP 200
+{
+  "token": "dfd384673e9127213de6116ca33257ce4aa203cf"
+}
+```
+<br>
+<br>
+Para criação do Curso:
+<br>
+Para criar um curso é necessario um token de Intrutor:
+<br>
+<br>
+POST /api/courses/
+<br>
+<br>
+
+```sh
+// REQUEST
+// Header -> Authorization: Token <token-do-instrutor>
+{
+  "name": "Javascript 101"
+}
+```
+```sh
+// RESPONSE STATUS -> HTTP 201
+{
+  "id": 1,
+  "name": "Javascript 101",
+  "user_set": []
+}
+
+```
+<br>
+<br>
+Atualizando a lista de estudantes matriculados em um curso:
+<br>
+<br>
+Para atualizar o curso somente token de instrutor
+<br>
+<br>
+PUT /api/courses/registrations/
+<br>
+<br>
+
+```sh
+// REQUEST
+// Header -> Authorization: Token <token-do-instrutor>
+{
+  "course_id": 1,
+  "user_ids": [1, 2, 7]
+}
+```
+```sh
+// RESPONSE STATUS -> HTTP 200
+{
+  "id": 1,
+  "name": "Javascript 101",
+  "user_set": [
     {
-	"characteristic": "peludo"
+      "id": 1,
+      "is_superuser": false,
+      "is_staff": false,
+      "username": "luiz"
     },
     {
-	"characteristic": "medio porte"
+      "id": 7,
+      "is_superuser": false,
+      "is_staff": false,
+      "username": "isabela"
+    },
+    {
+      "id": 2,
+      "is_superuser": false,
+      "is_staff": false,
+      "username": "raphael"
     }
   ]
 }
-```
 
+```
 <br>
 <br>
-Fazendo a leitura dos animais cadastrados:
+Obtendo a lista de cursos e alunos:
 <br>
-GET /animals/
+<br>
+GET /api/courses/
 <br>
 <br>
 
@@ -106,95 +265,130 @@ GET /animals/
 [
   {
     "id": 1,
-    "name": "Bidu",
-    "age": 1,
-    "weight": 30,
-    "sex": "macho",
-    "group": {
-      "id": 1,
-      "name": "cao",
-      "scientific_name": "canis familiaris"
-    },
-    "characteristic_set": [
+    "name": "Javascript 101",
+    "user_set": [
       {
         "id": 1,
-        "characteristic": "peludo"
-      },
-      {
-        "id": 2,
-        "characteristic": "medio porte"
+        "is_superuser": false,
+        "is_staff": false,
+        "username": "luiz"
       }
     ]
   },
   {
     "id": 2,
-    "name": "Hanna",
-    "age": 1,
-    "weight": 20, 
-    "sex": "femea",
-    "group": {
-      "id": 2,
-      "name": "gato",
-      "scientific_name": "felis catus"
-    },
-    "characteristic_set": [
-      {
-        "id": 1,
-        "characteristic": "peludo"
-      },
-      {
-        "id": 3,
-        "characteristic": "felino"
-      }
-    ]
+    "name": "Python 101",
+    "user_set": []
   }
 ]
-```
 
+```
 <br>
 <br>
-Filtrando animais:
+Criando uma atividade (estudante):
 <br>
-GET /animals/< int:animal_id >/
+Somente o estudante pode criar ativiades mais não pode mandar a nota e mesmo que mande vai ser setada como NULL:
+<br>
+<br>
+POST /api/activities/
 <br>
 <br>
 
 ```sh
-// RESPONSE STATUS -> HTTP 200
-  {
-  "id": 1,
-  "name": "Bidu",
-  "age": 1,
-  "weight": 30,
-  "sex": "macho",
-  "group": {
-    "id": 1,
-    "name": "cao",
-    "scientific_name": "canis familiaris"
-  },
-  "characteristic_set": [
-    {
-      "id": 1,
-      "characteristic": "peludo"
-    },
-    {
-      "id": 2,
-      "characteristic": "medio porte"
-    }
-  ]
+// REQUEST
+// Header -> Authorization: Token <token-do-estudante>
+{
+  "repo": "gitlab.com/cantina-kenzie",
+  "grade": 10 // Esse campo é opcional
 }
 ```
+```sh
+// RESPONSE STATUS -> HTTP 201
+// Repare que o campo grade foi ignorado
+{
+  "id": 6,
+  "user_id": 7,
+  "repo": "gitlab.com/cantina-kenzie",
+  "grade": null
+}
+
+```
 <br>
 <br>
-Deletando animais:
+Listando de  atividades com token de facilitador ou instrutor
 <br>
-DELETE /animals/< int:animal_id >/
+GET /api/activities/
 <br>
 <br>
 
 ```sh
-// RESPONSE STATUS -> HTTP 204 (no content)
+//REQUEST
+//Header -> Authorization: Token <token-do-facilitador ou token-do-instrutor>
+
+```
+```sh
+[
+  {
+    "id": 1,
+    "user_id": 1,
+    "repo": "github.com/luiz/cantina",
+    "grade": null
+  },
+  {
+    "id": 6,
+    "user_id": 1,
+    "repo": "github.com/hanoi",
+    "grade": null
+  },
+  {
+    "id": 10,
+    "user_id": 2,
+    "repo": "github.com/foodlabs",
+    "grade": null
+  },
+  {
+    "id": 35,
+    "user_id": 3,
+    "repo": "github.com/kanvas",
+    "grade": null
+  },
+]
 ```
 <br>
+<br>
+Filtrando atividades fornecendo um user_id opcional com token de facilitador ou instrutor
+<br>
+GET /api/activities/
+<br>
+<br>
 
+```sh
+//REQUEST (/api/activities/1/)
+//Header -> Authorization: Token <token-do-facilitador ou token-do-instrutor>
+
+```
+```sh
+[
+  {
+    "id": 1,
+    "user_id": 1,
+    "repo": "github.com/luiz/cantina",
+    "grade": null
+  },
+  {
+    "id": 6,
+    "user_id": 1,
+    "repo": "github.com/hanoi",
+    "grade": null
+  },
+  {
+    "id": 15,
+    "user_id": 1,
+    "repo": "github.com/foodlabs",
+    "grade": null
+  },
+]
+```
+<br>
+<br>
 

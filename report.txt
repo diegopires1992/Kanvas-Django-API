@@ -50,20 +50,10 @@ test_student_cannot_assign_grade (test.TestActivityView) ... ok
 test_anonymous_can_list_courses (test.TestCourseView) ... ok
 test_facilitator_or_student_cannot_create_course (test.TestCourseView) ... ok
 test_instructor_can_create_course (test.TestCourseView) ... ok
-test_instructor_can_register_students_on_course (test.TestCourseView) ... ERROR
-
-======================================================================
-ERROR: test_instructor_can_register_students_on_course (test.TestCourseView)
-----------------------------------------------------------------------
-Traceback (most recent call last):
-  File "/home/devs/Área de Trabalho/q4/week_2/Kanvas/test.py", line 288, in test_instructor_can_register_students_on_course
-    self.assertEqual(len(response.json()["user_set"]), 2)
-  File "/home/devs/Área de Trabalho/q4/week_2/Kanvas/venv/lib/python3.9/site-packages/django/test/client.py", line 662, in _parse_json
-    raise ValueError(
-ValueError: Content-Type header is "text/html", not "application/json"
+test_instructor_can_register_students_on_course (test.TestCourseView) ... ok
 
 ----------------------------------------------------------------------
-Ran 17 tests in 6.583s
+Ran 17 tests in 6.372s
 
-FAILED (errors=1)
+OK
 Destroying test database for alias 'default' ('file:memorydb_default?mode=memory&cache=shared')...
